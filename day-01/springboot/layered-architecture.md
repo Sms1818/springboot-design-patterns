@@ -1,4 +1,4 @@
-# ***Layered Architecture in Spring Boot – Complete Deep Guide***
+# ***Layered Architecture in Spring Boot***
 
 ---
 
