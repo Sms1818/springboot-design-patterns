@@ -1,4 +1,3 @@
-```md
 # ***Custom Interceptors in Spring Boot***
 
 ---
@@ -15,21 +14,18 @@ An **Interceptor** is a component that intercepts HTTP requests **before or afte
 
 ## 🧠 Core Idea
 
-~~~text
 Client Request → Interceptor → Controller → Interceptor → Response
-~~~
 
 ---
 
 ## 🎯 Use Cases
 
-~~~text
 Logging
 Authentication
 Authorization
 Caching
 Request validation
-~~~
+
 
 ---
 
@@ -37,10 +33,10 @@ Request validation
 
 ---
 
-~~~text
+
 1. Before Controller (HandlerInterceptor)
 2. After Controller (AOP + Custom Annotation)
-~~~
+
 
 ---
 
@@ -50,15 +46,15 @@ Request validation
 
 ## 📌 Flow
 
-~~~text
+
 Client → DispatcherServlet → Interceptor → Controller → Response
-~~~
+
 
 ---
 
 ## 💻 Example Controller
 
-~~~java
+```java 
 @RestController
 @RequestMapping("/api/")
 public class UserController {
@@ -72,13 +68,14 @@ public class UserController {
         return "success";
     }
 }
-~~~
+```
+
 
 ---
 
 ## 💻 Create Custom Interceptor
 
-~~~java
+```java
 @Component
 public class MyCustomInterceptor implements HandlerInterceptor {
 
@@ -109,23 +106,22 @@ public class MyCustomInterceptor implements HandlerInterceptor {
         System.out.println("Inside afterCompletion()");
     }
 }
-~~~
+```
 
 ---
 
 ## 🧠 Methods Explained
 
-~~~text
 preHandle()        → Before controller execution
 postHandle()       → After controller execution
 afterCompletion()  → After response is sent
-~~~
+
 
 ---
 
 ## 💻 Register Interceptor
 
-~~~java
+```java
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
@@ -140,13 +136,12 @@ public class AppConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/api/deleteUser");
     }
 }
-~~~
+```
 
 ---
 
 ## 🧠 Flow Summary
 
-~~~text
 Request comes
         ↓
 preHandle()
@@ -158,7 +153,7 @@ postHandle()
 Response sent
         ↓
 afterCompletion()
-~~~
+
 
 ---
 
@@ -168,10 +163,10 @@ afterCompletion()
 
 ## 📌 Why Needed?
 
-~~~text
+
 We want interception only for specific methods
 (using custom annotations)
-~~~
+
 
 ---
 
@@ -179,12 +174,12 @@ We want interception only for specific methods
 
 ---
 
-~~~java
+```java
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MyCustomAnnotation {
 }
-~~~
+```
 
 ---
 
@@ -192,18 +187,18 @@ public @interface MyCustomAnnotation {
 
 ### Target
 
-~~~text
+
 Defines where annotation can be used
 (METHOD, CLASS, FIELD etc.)
-~~~
+
 
 ### Retention
 
-~~~text
+
 SOURCE   → Removed at compile time
 CLASS    → Present in .class but not runtime
 RUNTIME  → Available at runtime (required for AOP)
-~~~
+
 
 ---
 
@@ -211,7 +206,7 @@ RUNTIME  → Available at runtime (required for AOP)
 
 ---
 
-~~~java
+```java
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MyCustomAnnotation {
@@ -219,13 +214,13 @@ public @interface MyCustomAnnotation {
     String name() default "";
     int count() default 0;
 }
-~~~
+```
 
 ---
 
 ## 💻 Usage
 
-~~~java
+```java
 @Component
 public class User {
 
@@ -234,7 +229,7 @@ public class User {
         System.out.println("Getting user");
     }
 }
-~~~
+```
 
 ---
 
@@ -242,7 +237,7 @@ public class User {
 
 ---
 
-~~~java
+```java
 @Aspect
 @Component
 public class MyCustomInterceptor {
@@ -268,13 +263,12 @@ public class MyCustomInterceptor {
         return result;
     }
 }
-~~~
+```
 
 ---
 
 ## 🧠 Flow
 
-~~~text
 Method called
         ↓
 AOP Interceptor
@@ -284,7 +278,7 @@ Before logic
 Actual method
         ↓
 After logic
-~~~
+
 
 ---
 
@@ -294,21 +288,20 @@ After logic
 
 ## 🔹 HandlerInterceptor
 
-~~~text
+
 Before Controller
 Works on URL patterns
 HTTP level interception
-~~~
+
 
 ---
 
 ## 🔹 AOP Interceptor
 
-~~~text
 After Controller
 Works on methods
 Annotation-based interception
-~~~
+
 
 ---
 
@@ -316,7 +309,7 @@ Annotation-based interception
 
 ---
 
-~~~text
+
 Client Request
         ↓
 DispatcherServlet
@@ -336,7 +329,6 @@ HandlerInterceptor (postHandle)
 Response
         ↓
 afterCompletion
-~~~
 
 ---
 
@@ -346,22 +338,22 @@ afterCompletion
 
 ## Use HandlerInterceptor
 
-~~~text
+
 Logging
 Authentication
 Headers validation
 Request tracking
-~~~
+
 
 ---
 
 ## Use AOP
 
-~~~text
+
 Business logic interception
 Custom annotations
 Method-level control
-~~~
+
 
 ---
 
@@ -369,12 +361,11 @@ Method-level control
 
 ---
 
-~~~text
+
 Clean separation of concerns
 Reusable logic
 Centralized handling
 Improved logging and security
-~~~
 
 ---
 
@@ -382,12 +373,12 @@ Improved logging and security
 
 ---
 
-~~~text
+
 Forgetting to register interceptor
 Returning false in preHandle()
 Using wrong RetentionPolicy
 Mixing AOP and interceptor incorrectly
-~~~
+
 
 ---
 
@@ -395,10 +386,10 @@ Mixing AOP and interceptor incorrectly
 
 ---
 
-~~~text
+
 Interceptor = Request level
 AOP = Method level
-~~~
+
 
 ---
 
@@ -408,34 +399,34 @@ AOP = Method level
 
 ## 🔹 What is an Interceptor in Spring Boot?
 
-~~~text
+
 An Interceptor is used to intercept HTTP requests before or after they reach the controller.
 It is commonly used for logging, authentication, authorization, request validation, and tracking.
-~~~
+
 
 ---
 
 ## 🔹 Which interface is used to create an interceptor in Spring Boot?
 
-~~~text
+
 HandlerInterceptor interface is used to create a custom interceptor.
-~~~
+
 
 ---
 
 ## 🔹 What are the main methods of HandlerInterceptor?
 
-~~~text
+
 preHandle()
 postHandle()
 afterCompletion()
-~~~
+
 
 ---
 
 ## 🔹 What is preHandle()?
 
-~~~text
+
 preHandle() is executed before the controller method is called.
 
 If it returns true:
@@ -443,48 +434,48 @@ Request continues to the controller.
 
 If it returns false:
 Request stops and controller is not executed.
-~~~
+
 
 ---
 
 ## 🔹 What is postHandle()?
 
-~~~text
+
 postHandle() is executed after the controller method is executed but before the response is completed.
-~~~
+
 
 ---
 
 ## 🔹 What is afterCompletion()?
 
-~~~text
+
 afterCompletion() is executed after the request is completed and response is sent.
 It is commonly used for cleanup, logging, and exception tracking.
-~~~
+
 
 ---
 
 ## 🔹 How do we register a custom interceptor?
 
-~~~text
+
 By implementing WebMvcConfigurer and overriding addInterceptors() method.
-~~~
+
 
 ---
 
 ## 🔹 What is addPathPatterns()?
 
-~~~text
+
 addPathPatterns() defines the URL patterns where the interceptor should be applied.
-~~~
+
 
 ---
 
 ## 🔹 What is excludePathPatterns()?
 
-~~~text
+
 excludePathPatterns() defines the URL patterns where the interceptor should not be applied.
-~~~
+
 
 ---
 
@@ -501,10 +492,10 @@ excludePathPatterns() defines the URL patterns where the interceptor should not 
 
 ## 🔹 Can Interceptor replace Filter?
 
-~~~text
+
 No. Filter works before DispatcherServlet.
 Interceptor works after DispatcherServlet and before Controller.
-~~~
+
 
 ---
 
@@ -521,34 +512,34 @@ Interceptor works after DispatcherServlet and before Controller.
 
 ## 🔹 Why do we use custom annotations with AOP?
 
-~~~text
+
 Custom annotations help apply interceptor logic only to selected methods.
 This avoids applying logic globally.
-~~~
+
 
 ---
 
 ## 🔹 Why is RetentionPolicy.RUNTIME needed?
 
-~~~text
+
 Because AOP needs to read the annotation at runtime.
 If annotation is not available at runtime, interceptor logic will not work.
-~~~
+
 
 ---
 
 ## 🔹 What happens if preHandle() returns false?
 
-~~~text
+
 The request stops immediately.
 Controller method will not execute.
-~~~
+
 
 ---
 
 ## 🔹 Common use cases of Interceptors?
 
-~~~text
+
 Authentication
 Authorization
 Logging
@@ -556,7 +547,7 @@ Request tracking
 Header validation
 Audit logging
 Performance monitoring
-~~~
+
 
 ---
 
@@ -564,9 +555,9 @@ Performance monitoring
 
 ---
 
-~~~text
+
 HandlerInterceptor → Before/After Controller
 AOP → Around Method Execution
 Custom Annotation → Selective Interception
-~~~
-```
+
+
