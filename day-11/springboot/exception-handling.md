@@ -315,11 +315,278 @@ Controller Level Handler > Global Handler
 
 ## 2️⃣ ResponseStatusExceptionResolver
 
-Handles:
+---
+
+## 📌 What It Handles
+
+`ResponseStatusExceptionResolver` handles exceptions annotated with `@ResponseStatus`.
+
+It is mainly used when we want to map an exception directly to an HTTP status code.
+
+---
+
+# 🔥 Use Case 1: @ResponseStatus on Custom Exception Class
+
+---
+
+## 💻 Example
 
 ```java
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class CustomException extends RuntimeException {}
+public class CustomException extends RuntimeException {
+
+    public CustomException(String message) {
+        super(message);
+    }
+}
+```
+
+```java
+@RestController
+@RequestMapping("/api/")
+public class UserController {
+
+    @GetMapping("/get-user")
+    public ResponseEntity<?> getUser() {
+        throw new CustomException("UserID is missing");
+    }
+}
+```
+
+---
+
+## 🧠 Output
+
+```text
+HTTP Status → 400 Bad Request
+```
+
+---
+
+## ⚠️ Important
+
+The status code comes from `@ResponseStatus`.
+
+---
+
+# 🔥 Use Case 2: @ResponseStatus with reason
+
+---
+
+## 💻 Example
+
+```java
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Invalid Request Passed")
+public class CustomException extends RuntimeException {
+
+    public CustomException(String message) {
+        super(message);
+    }
+}
+```
+
+```java
+@RestController
+@RequestMapping("/api/")
+public class UserController {
+
+    @GetMapping("/get-user")
+    public ResponseEntity<?> getUser() {
+        throw new CustomException("UserID is missing");
+    }
+}
+```
+
+---
+
+## 🧠 Output
+
+```text
+HTTP Status → 400 Bad Request
+Reason      → Invalid Request Passed
+```
+
+---
+
+## ⚠️ Important
+
+When `reason` is provided, Spring may send the reason message in the error response depending on error configuration.
+
+---
+
+# 🔥 Use Case 3: @ResponseStatus on @ExceptionHandler Method
+
+---
+
+## 💻 Example
+
+```java
+@RestController
+@RequestMapping("/api/")
+public class UserController {
+
+    @GetMapping("/get-user")
+    public ResponseEntity<?> getUser() {
+        throw new CustomException("UserID is missing");
+    }
+
+    @ExceptionHandler(CustomException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleCustomException(CustomException ex) {
+        return ex.getMessage();
+    }
+}
+```
+
+---
+
+## 🧠 Important
+
+Here, exception is handled by:
+
+```text
+ExceptionHandlerExceptionResolver
+```
+
+Not by:
+
+```text
+ResponseStatusExceptionResolver
+```
+
+Because `@ExceptionHandler` gets priority.
+
+---
+
+# 🔥 Use Case 4: @ExceptionHandler Returning ResponseEntity + @ResponseStatus Together
+
+---
+
+## ❌ Confusing Example
+
+```java
+@ExceptionHandler(CustomException.class)
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public ResponseEntity<String> handleCustomException(CustomException ex) {
+    return new ResponseEntity<>("Forbidden response", HttpStatus.FORBIDDEN);
+}
+```
+
+---
+
+## 🚨 Problem
+
+There are two status codes:
+
+```text
+@ResponseStatus → 400 BAD_REQUEST
+ResponseEntity  → 403 FORBIDDEN
+```
+
+---
+
+## 🧠 Result
+
+`ResponseEntity` status usually becomes the final response status because it directly builds the response.
+
+---
+
+## ✅ Best Practice
+
+Do NOT mix `@ResponseStatus` and `ResponseEntity` in the same handler.
+
+Choose one approach.
+
+---
+
+# 🔥 Use Case 5: @ExceptionHandler + @ResponseStatus with void Method
+
+---
+
+## 💻 Example
+
+```java
+@ExceptionHandler(CustomException.class)
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Invalid Request Sent")
+public void handleCustomException(CustomException ex) {
+    // no response body
+}
+```
+
+---
+
+## 🧠 Output
+
+```text
+HTTP Status → 400 Bad Request
+Reason      → Invalid Request Sent
+Body        → Default error response
+```
+
+---
+
+## ✅ When This Makes Sense
+
+Use this when:
+- You only want to set status
+- You do not want custom response body
+
+---
+
+# 🔥 Use Case 6: @ExceptionHandler Manually Sending Error
+
+---
+
+## 💻 Example
+
+```java
+@ExceptionHandler(CustomException.class)
+public void handleCustomException(CustomException ex,
+                                  HttpServletResponse response)
+        throws IOException {
+
+    response.sendError(HttpStatus.FORBIDDEN.value(), "You are not authorized");
+}
+```
+
+---
+
+## 🧠 Output
+
+```text
+HTTP Status → 403 Forbidden
+Message     → You are not authorized
+```
+
+---
+
+## ⚠️ Important
+
+Here you are manually controlling the response using `HttpServletResponse`.
+
+---
+
+# 🔥 ResponseStatusExceptionResolver Summary
+
+---
+
+| Use Case | Resolver / Behavior |
+|---|---|
+| `@ResponseStatus` on Exception class | ResponseStatusExceptionResolver |
+| `@ResponseStatus(reason = "...")` | ResponseStatusExceptionResolver |
+| `@ResponseStatus` on `@ExceptionHandler` | ExceptionHandlerExceptionResolver |
+| `@ExceptionHandler` returns ResponseEntity | ResponseEntity controls response |
+| `@ExceptionHandler` void + @ResponseStatus | Status comes from @ResponseStatus |
+| `response.sendError()` | Manual response control |
+
+---
+
+## 🧠 Memory Trick
+
+```text
+@ResponseStatus on Exception class → ResponseStatusExceptionResolver
+@ResponseStatus on ExceptionHandler → ExceptionHandlerExceptionResolver
+ResponseEntity → Direct response control
 ```
 
 ---
